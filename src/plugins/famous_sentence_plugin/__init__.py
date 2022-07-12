@@ -1,52 +1,38 @@
-import requests
-from bs4 import BeautifulSoup
+import random
+
 from nonebot import on_keyword
 from nonebot.adapters.onebot.v11 import Event, Bot, Message
 from nonebot.typing import T_State
 
-keyword = on_keyword({'名句'})
+keyword = on_keyword({'#'})
 
 
-def get_search_url(name='圣经'):
-    s = requests.session()
-    s.keep_alive = False
-    url = 'https://www.zjkhuiyu.com/search.php?q=' + name
-    response = s.get(url)
-    search_soup = BeautifulSoup(response.text)
-    item = search_soup.select_one('div[class="ans_list"] a')
-    return item.get('href')
+def get_article(name):
+    try:
+        f = open('src/resource/article/' + name + '.txt', encoding='utf-8')
+        arr = list()
+        content = f.readline()
+        while content:
+            arr.append(content)
+            content = f.readline()
+        length = arr.__len__()
+        rand = random.randint(0, length - 1)
+        return arr[rand] + f'  ——《{name}》'
+    except Exception as e:
+        print(e.__str__())
+        return '该书籍未收录，请联系BLUE-EA'
 
-
-def get_article():
-    url = get_search_url()
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text)
-    p_list = soup.select(
-        '''div[id="wrap"] 
-        div[class="wrap container"] 
-        div[class="main"] 
-        article 
-        div[id="article-content"] 
-        div[data-desc="content"] 
-        p''')
-    str = ''
-    flag = False
-    for item in p_list:
-        txt = item.text
-        if is_num_start(txt) and flag is False:
-            flag = True
-            str += txt + '\n'
-        elif is_num_start(txt) is False and flag:
-            str += item.text + '\n'
-        elif is_num_start(txt) and flag:
-            break
-    return str
-
-
-def is_num_start(str):
-    return str[0] in '0123456789'
 
 @keyword.handle()
 async def method(bot: Bot, event: Event, state: T_State):
-    msg = get_article()
+    message = event.get_message().__str__()
+    arr = message.split('#')
+    if arr.__len__() <= 1:
+        name = ''
+    else:
+        name = arr[1]
+    if name is None or name == '':
+        msg = '请输入书名，以“#书名”的格式写'
+    else:
+        msg = get_article(name)
     await keyword.finish(Message(msg))

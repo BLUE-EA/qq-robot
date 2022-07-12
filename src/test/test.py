@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_search_url(name='圣经'):
+def get_search_url(name='月亮与六便士'):
     s = requests.session()
     s.keep_alive = False
     url = 'https://www.zjkhuiyu.com/search.php?q=' + name
@@ -21,13 +21,13 @@ def get_article():
         div[class="wrap container"] 
         div[class="main"] 
         article 
-        div[id="article-content"] 
-        div[data-desc="content"] 
+        div[id="article-article"] 
+        div[data-desc="article"] 
         p''')
     str = ''
     flag = False
     for item in p_list:
-        txt = item.text
+        txt = item.text.strip()
         if is_num_start(txt) and flag is False:
             flag = True
             str += txt + '\n'
@@ -42,5 +42,15 @@ def is_num_start(str):
     return str[0] in '0123456789'
 
 
+def get_article1(name):
+    f = open('../resource/article/' + name + '.txt', encoding='utf-8')
+    content = f.readline()
+    while content:
+        print(content)
+        content = f.readline()
+
+
 if __name__ == '__main__':
-    print(get_article())
+    message = '名句-圣经'
+    arr = message.split('-')
+    print(get_article1(arr[1]))
