@@ -6,6 +6,8 @@ from nonebot.typing import T_State
 
 keyword = on_keyword({'#'})
 
+books = ['原神', '三国演义']
+
 
 def get_article(name):
     try:
@@ -17,7 +19,10 @@ def get_article(name):
             content = f.readline()
         length = arr.__len__()
         rand = random.randint(0, length - 1)
-        return arr[rand] + f'  ——《{name}》'
+        if name not in books:
+            return arr[rand] + f'  ——《{name}》'
+        else:
+            return arr[rand]
     except Exception as e:
         print(e.__str__())
         return '该书籍未收录，请联系BLUE-EA'
